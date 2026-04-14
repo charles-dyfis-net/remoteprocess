@@ -216,12 +216,7 @@ pub struct ThreadLock {
 impl ThreadLock {
     fn new(tid: nix::unistd::Pid) -> Result<ThreadLock, Error> {
         // This attaches to the process w/o pausing it.
-        ptrace::seize(
-            tid,
-            // Without this, it *appears* that the tracee can get stuck in the
-            // zombie state and our `waitpid` below will just hang.
-            ptrace::Options::PTRACE_O_TRACEEXIT,
-        )?;
+        ptrace::seize(tid, ptrace::Options::empty())?;
 
         // From this point on, every early return MUST run ptrace::detach or
         // the tracee will remain seized until this process exits. Construct
